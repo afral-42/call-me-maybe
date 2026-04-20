@@ -3,27 +3,24 @@ from srcs.states import StaticStringState, get_string_router_automate
 from llm_sdk import Small_LLM_Model
 from srcs.trie import get_token_trie
 from srcs.utils import get_best_token
+from srcs.parsing import build_function_states
 
 
 class InferenceEngine:
     def __init__(self):
-        begin = StaticStringState("{\"name\":\"")
-        string_router = get_string_router_automate([
-            "fn_greet_user",
-            "fn_add_numbers",
-            "fn_reverse_string",
-            "fn_get_square_root",
-            "fn_send_money"
-        ])
-
-        self.machine = StateMachine([begin, string_router])
         self.llm = Small_LLM_Model()
         self.trie = get_token_trie(self.llm)
+        begin = StaticStringState("{\"name\":\"")
+        func_router = build_function_states(
+            "data/input/functions_definition.json"
+        )
+
+        self.machine = StateMachine([begin, func_router])
 
         funcs = "fn_greet_user,fn_add_numbers,fn_reverse_string,fn_get_square_root,fn_send_money"
         messages = [
-            {"role": "system", "content": "You are a ultra futuristic IT assistant who can interact with the world"},
-            {"role": "user", "content": f"Please, choose only one function to send money (1000$) the following set: {funcs}"}
+            {"role": "system", "content": "You are a ultra futuristic IT assistant which only responds a proper structured JSON"},
+            {"role": "user", "content": f"Choisis une fonction pour dire bonjour a bcondemi into the following set: {funcs}"}
         ]
 
         prompt = self.llm._tokenizer.apply_chat_template(
