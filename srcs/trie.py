@@ -1,6 +1,7 @@
 from llm_sdk import Small_LLM_Model
 import json
 from collections import deque
+import functools
 
 
 class TrieNode:
@@ -29,6 +30,7 @@ class Trie:
         cur.token = token_id
         self.size += 1
 
+    @functools.lru_cache()
     def search_prefixes(self, string: str) -> set[int]:
         cur = self.root
 
@@ -42,7 +44,8 @@ class Trie:
                 break
         return set(result)
 
-    def search_batch_prefixes(self, strings: list[str]) -> set[int]:
+    @functools.lru_cache()
+    def search_batch_prefixes(self, strings: tuple[str]) -> set[int]:
         result = []
         for string in strings:
             cur = self.root
