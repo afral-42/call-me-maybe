@@ -16,3 +16,4 @@ class FunctionSchema(BaseModel):
     name: str
     description: str
     parameters: dict[str, ParameterDetail]
+    returns: ParameterDetail

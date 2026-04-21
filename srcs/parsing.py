@@ -45,17 +45,22 @@ def build_function_states(functions_path: str) -> StringRouterState:
                 local_next_states.append(
                     NumberState("}" if i == last else ",")
                 )
+                if i == last:
+                    local_next_states.append(StaticStringState("}"))
             elif type.type == DataType.STRING:
                 local_next_states.append(StaticStringState("\""))
                 local_next_states.append(DynamicStringState())
 
-                local_next_states.append(StaticStringState("}"))
+                if i != last:
+                    local_next_states.append(StaticStringState(","))
+                else:
+                    local_next_states.append(StaticStringState("}}"))
             elif type.type == DataType.BOOL:
                 local_next_states.append(get_boolean_automate())
                 if i != last:
                     local_next_states.append(StaticStringState(","))
                 else:
-                    local_next_states.append(StaticStringState("}"))
+                    local_next_states.append(StaticStringState("}}"))
 
         routers.append(router)
         next_states[router] = local_next_states
