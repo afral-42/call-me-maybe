@@ -254,7 +254,7 @@ class DynamicStringState(State):
     def get_valid_tokens(self, trie: Trie) -> set[int]:
         if self.state == StringMachineState.ESCAPE:
             return trie.constrained_search("\"\\/bfnrtu")
-        return set(range(trie.size))
+        return trie.ended_search("\"", "\"\\/bfnrtu", "\\")
 
     def is_done(self) -> bool:
         return self.done
@@ -299,16 +299,6 @@ class StringRouterState(State):
 
     def get_next_states(self) -> list[State]:
         return self.next_states[self.winner]
-
-
-def get_string_router_automate(options: list[str], trie: Trie) -> StringRouterState:
-    functions = [StaticStringState(option) for option in options]
-    next_states = {}
-
-    for function in functions:
-        next_states[function] = [StaticStringState("\",\"parameters\":{\"a\":"), NumberState()]
-
-    return StringRouterState(set(functions), next_states)
 
 
 def get_boolean_automate() -> StringRouterState:
