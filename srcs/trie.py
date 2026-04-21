@@ -73,8 +73,36 @@ class Trie:
                 result.append(node.token)
             next = node
             for key, value in next.childrens.items():
-                if key in "0123456789":
+                if key in constraint:
                     queue.appendleft((key, value))
+
+        return set(result)
+
+    def ended_search(
+        self, constraint: str, escape: str, escape_char: str
+    ) -> set[int]:
+        queue: deque[tuple[str, TrieNode, bool]] = deque()
+        result: list[int] = []
+
+        for char, node in self.root.childrens.items():
+            queue.append((char, node, False))
+
+        while queue:
+            char, node, is_escaped = queue.popleft()
+            if char == escape_char and not is_escaped:
+                if node.token is not None:
+                    result.append(node.token)
+                for next_char, next_node in node.childrens.items():
+                    if next_char in escape:
+                        queue.append((next_char, next_node, True))
+            elif char == constraint and not is_escaped:
+                if node.token is not None:
+                    result.append(node.token)
+            else:
+                if node.token is not None:
+                    result.append(node.token)
+                for next_char, next_node in node.childrens.items():
+                    queue.append((next_char, next_node, False))
 
         return set(result)
 
