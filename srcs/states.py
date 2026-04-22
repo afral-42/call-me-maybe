@@ -78,15 +78,17 @@ class NumberState(State):
         self.end = end
 
         self.search_map = {
-            NumberMachineState.SIGN: "-0123456789",
-            NumberMachineState.ZERO: f".{end}",
-            NumberMachineState.START_MINUS: "0123456789",
-            NumberMachineState.INTEGRAL: f"0123456789.{end}eE",  # Attention car l'arbre peut tres bien renvoyer .. si prefix! (ajouter un argument "unique")
-            NumberMachineState.POINT: "0123456789",
-            NumberMachineState.FRACTIONAL: f"0123456789{end}eE",
-            NumberMachineState.EXPONENT: "-+0123456789",
-            NumberMachineState.EXPONENT_SIGN: "0123456789",
-            NumberMachineState.EXPONENT_INTEGRAL: f"0123456789{end}"
+            NumberMachineState.SIGN: ("-0123456789", ""),
+            NumberMachineState.ZERO: (f".{end}", ""),
+            NumberMachineState.START_MINUS: ("0123456789", ""),
+            NumberMachineState.INTEGRAL: (f"0123456789.{end}eE", "."),
+            NumberMachineState.POINT: ("0123456789", ""),
+            NumberMachineState.FRACTIONAL: (f"0123456789{end}eE", f"{end}"),
+            NumberMachineState.EXPONENT: ("-+0123456789", "-"),
+            NumberMachineState.EXPONENT_SIGN: ("0123456789", ""),
+            NumberMachineState.EXPONENT_INTEGRAL: (
+                f"0123456789{end}", f"{end}"
+            )
         }
 
         self.transitions = {
@@ -188,7 +190,13 @@ class NumberState(State):
         return ""
 
     def get_valid_tokens(self, trie: Trie) -> set[int]:
-        return trie.constrained_search(self.search_map[self.state])
+        search, unique = self.search_map[self.state]
+
+        return trie.constrained_search_with_uniques(
+            search,
+            unique,
+            self.end
+        )
 
     def is_done(self) -> bool:
         return self.done

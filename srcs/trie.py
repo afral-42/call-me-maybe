@@ -58,6 +58,7 @@ class Trie:
                     break
         return set(result)
 
+    @functools.lru_cache()
     def constrained_search(self, constraint: str) -> set[int]:
         queue: deque[tuple[str, TrieNode]] = deque()
 
@@ -78,6 +79,40 @@ class Trie:
 
         return set(result)
 
+    @functools.lru_cache()
+    def constrained_search_with_uniques(
+        self, constraint: str, uniques: str, end_char: str,
+    ) -> set[int]:
+        queue: deque[tuple[str, TrieNode, frozenset]] = deque()
+
+        for key, value in self.root.childrens.items():
+            if key in constraint:
+                if key in uniques:
+                    queue.appendleft((key, value, frozenset([key])))
+                else:
+                    queue.appendleft((key, value, frozenset([])))
+
+        result: list[int] = []
+
+        while len(queue):
+            next_key, node, seen = queue.popleft()
+            if node.token is not None:
+                result.append(node.token)
+            next = node
+            if end_char in next_key:
+                continue
+            for key, value in next.childrens.items():
+                if key in constraint:
+                    if key not in uniques:
+                        queue.appendleft((key, value, seen))
+                    elif key in uniques and key not in seen:
+                        queue.appendleft((key, value, seen | frozenset([key])))
+                    else:
+                        pass
+
+        return set(result)
+
+    @functools.lru_cache()
     def ended_search(
         self, constraint: str, escape: str, escape_char: str
     ) -> set[int]:
