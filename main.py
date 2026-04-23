@@ -2,6 +2,9 @@ from srcs.inference import InferenceEngine
 import time
 
 
+def main() -> None:
+    pass
+
 if __name__ == "__main__":
     begin = time.perf_counter()
     engine = InferenceEngine()

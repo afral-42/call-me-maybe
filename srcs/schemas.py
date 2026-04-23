@@ -17,3 +17,12 @@ class FunctionSchema(BaseModel):
     description: str
     parameters: dict[str, ParameterDetail]
     returns: ParameterDetail
+
+
+class FunctionCallSchema(BaseModel):
+    name: str
+    parameters: dict
+
+
+class PromptSchema(BaseModel):
+    prompt: str
