@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from srcs.trie import Trie
 from enum import Enum, auto
+from llm_sdk import Small_LLM_Model
 
 
 class StateException(Exception):
@@ -24,6 +25,11 @@ class State(ABC):
 
     def get_next_states(self) -> list["State"]:
         return []
+
+    def intercept_token(
+        self, token_str: str, token_id: int, llm: Small_LLM_Model
+    ) -> list[int]:
+        return [token_id]
 
 
 class StaticStringState(State):
@@ -262,10 +268,33 @@ class DynamicStringState(State):
     def get_valid_tokens(self, trie: Trie) -> set[int]:
         if self.state == StringMachineState.ESCAPE:
             return trie.constrained_search("\"\\/bfnrtu")
-        return trie.ended_search("\"", "\"\\/bfnrtu", "\\")
+        return set(range(trie.size))
 
     def is_done(self) -> bool:
         return self.done
+
+    def intercept_token(
+        self,
+        token_str: str,
+        token_id: int,
+        llm: Small_LLM_Model
+    ) -> list[int]:
+        escaped = (self.state == self.state == StringMachineState.ESCAPE)
+
+        for i, c in enumerate(token_str):
+            if c == "\\":
+                escaped = True
+            elif (c == "\"" and not escaped):
+                if i == len(token_str) - 1:
+                    return [token_id]
+                return (
+                    llm.encode(token_str[:i])[0].tolist() +
+                    llm.encode("\"")[0].tolist()
+                )
+            elif escaped:
+                escaped = False
+
+        return [token_id]
 
 
 class StringRouterState(State):
@@ -307,12 +336,3 @@ class StringRouterState(State):
 
     def get_next_states(self) -> list[State]:
         return self.next_states[self.winner]
-
-
-def get_boolean_automate() -> StringRouterState:
-    true_state = StaticStringState("true")
-    false_state = StaticStringState("false")
-
-    return StringRouterState(
-        {true_state, false_state}, {true_state: [], false_state: []}
-    )
