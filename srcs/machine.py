@@ -1,6 +1,8 @@
 from collections import deque
 from srcs.trie import Trie
-from srcs.states import State, StateException
+from srcs.states import State, StateException, StaticStringState
+from llm_sdk import Small_LLM_Model
+
 
 
 class StateMachineException(Exception):
@@ -33,3 +35,8 @@ class StateMachine:
 
     def get_authorized_tokens(self, trie: Trie) -> set[int]:
         return self.states[0].get_valid_tokens(trie)
+
+    def intercept_token(
+        self, token_str: str, token_id: int, llm: Small_LLM_Model
+    ) -> list[int]:
+        return self.states[0].intercept_token(token_str, token_id, llm)
