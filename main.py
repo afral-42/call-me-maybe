@@ -1,14 +1,19 @@
-from srcs.inference import InferenceEngine
+from srcs.inference import BatchInferenceEngine
 import time
 
 
 def main() -> None:
-    pass
-
-if __name__ == "__main__":
     begin = time.perf_counter()
-    engine = InferenceEngine()
+    engine = BatchInferenceEngine.build_engine(
+        input_path="chill.json",
+        functions_definition_path="data/input/functions_definition.json",
+        output_path="result.json"
+    )
     engine.run()
-    engine.save_answer()  # AJouter a l'init un path de sauvegarde, un path de recup
+    engine.save_results()
     end = time.perf_counter()
     print(end - begin)
+
+
+if __name__ == "__main__":
+    main()
