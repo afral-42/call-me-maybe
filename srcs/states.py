@@ -82,19 +82,18 @@ class NumberState(State):
         self.state = NumberMachineState.SIGN
 
         self.end = end_char
-        self.end_pos = ",}\""
 
         self.search_map = {
             NumberMachineState.SIGN: ("-0123456789", "-"),
-            NumberMachineState.ZERO: (f".{self.end_pos}", ","),
+            NumberMachineState.ZERO: (f".{self.end}", ","),
             NumberMachineState.START_MINUS: ("0123456789", ""),
-            NumberMachineState.INTEGRAL: (f"0123456789.{self.end_pos}eE", "."),
+            NumberMachineState.INTEGRAL: (f"0123456789.{self.end}eE", "."),
             NumberMachineState.POINT: ("0123456789", ""),
-            NumberMachineState.FRACTIONAL: (f"0123456789{self.end_pos}eE", ","),
+            NumberMachineState.FRACTIONAL: (f"0123456789{self.end}eE", ","),
             NumberMachineState.EXPONENT: ("-+0123456789", "-+"),
             NumberMachineState.EXPONENT_SIGN: ("0123456789", ""),
             NumberMachineState.EXPONENT_INTEGRAL: (
-                f"0123456789{self.end_pos}", ","
+                f"0123456789{self.end}", ","
             ),
         }
 
@@ -205,7 +204,6 @@ class NumberState(State):
         return trie.constrained_search_with_uniques(
             search,
             unique,
-            self.end_pos
         )
 
     def is_done(self) -> bool:

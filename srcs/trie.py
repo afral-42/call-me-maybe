@@ -81,7 +81,7 @@ class Trie:
 
     @functools.lru_cache()
     def constrained_search_with_uniques(
-        self, constraint: str, uniques: str, end_char: str,
+        self, constraint: str, uniques: str, end_char: str | None = None,
     ) -> set[int]:
         queue: deque[tuple[str, TrieNode, frozenset]] = deque()
 
@@ -99,7 +99,7 @@ class Trie:
             if node.token is not None:
                 result.append(node.token)
             next = node
-            if end_char in next_key:
+            if end_char is not None and end_char in next_key:
                 continue
             for key, value in next.childrens.items():
                 if key in constraint:
