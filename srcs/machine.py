@@ -1,8 +1,7 @@
 from collections import deque
 from srcs.trie import Trie
-from srcs.states import State, StateException, StaticStringState
+from srcs.states import State, StateException
 from llm_sdk import Small_LLM_Model
-
 
 
 class StateMachineException(Exception):
