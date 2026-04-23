@@ -77,24 +77,25 @@ class NumberCharType(Enum):
 
 
 class NumberState(State):
-    def __init__(self, end: str) -> None:
+    def __init__(self, end_char: str) -> None:
         self.done = False
         self.state = NumberMachineState.SIGN
 
-        self.end = end
+        self.end = end_char
+        self.end_pos = ",}\""
 
         self.search_map = {
-            NumberMachineState.SIGN: ("-0123456789", ""),
-            NumberMachineState.ZERO: (f".{end}", ""),
+            NumberMachineState.SIGN: ("-0123456789", "-"),
+            NumberMachineState.ZERO: (f".{self.end_pos}", ","),
             NumberMachineState.START_MINUS: ("0123456789", ""),
-            NumberMachineState.INTEGRAL: (f"0123456789.{end}eE", "."),
+            NumberMachineState.INTEGRAL: (f"0123456789.{self.end_pos}eE", "."),
             NumberMachineState.POINT: ("0123456789", ""),
-            NumberMachineState.FRACTIONAL: (f"0123456789{end}eE", f"{end}"),
-            NumberMachineState.EXPONENT: ("-+0123456789", "-"),
+            NumberMachineState.FRACTIONAL: (f"0123456789{self.end_pos}eE", ","),
+            NumberMachineState.EXPONENT: ("-+0123456789", "-+"),
             NumberMachineState.EXPONENT_SIGN: ("0123456789", ""),
             NumberMachineState.EXPONENT_INTEGRAL: (
-                f"0123456789{end}", f"{end}"
-            )
+                f"0123456789{self.end_pos}", ","
+            ),
         }
 
         self.transitions = {
@@ -189,7 +190,10 @@ class NumberState(State):
                     return text[i:]
                 case _:
                     try:
-                        self.state = self.transitions[(self.state, char_type)]
+                        if isinstance(char_type, NumberCharType):
+                            self.state = self.transitions[
+                                (self.state, char_type)
+                            ]
                     except KeyError:
                         raise StateException
 
@@ -201,11 +205,27 @@ class NumberState(State):
         return trie.constrained_search_with_uniques(
             search,
             unique,
-            self.end
+            self.end_pos
         )
 
     def is_done(self) -> bool:
         return self.done
+
+    def intercept_token(
+        self,
+        token_str: str,
+        token_id: int,
+        llm: Small_LLM_Model
+    ) -> list[int]:
+        for i, c in enumerate(token_str):
+            if (c == self.end):
+                if i == len(token_str) - 1:
+                    return [token_id]
+                return (
+                    llm.encode(token_str[:i])[0].tolist() +
+                    llm.encode(self.end)[0].tolist()
+                )
+        return [token_id]
 
 
 class StringMachineState(Enum):

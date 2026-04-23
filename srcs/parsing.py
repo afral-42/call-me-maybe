@@ -8,7 +8,6 @@ from srcs.states import (
 from srcs.schemas import FunctionSchema, PromptSchema
 from srcs.schemas import DataType
 from srcs.prompts import Prompt
-from srcs.inference import BatchInference
 import json
 from srcs.machine import StateMachine
 from pydantic import ValidationError
@@ -64,7 +63,7 @@ def build_function_states(functions: list[dict]) -> StringRouterState:
             ))
             if type.type == DataType.NUMBER:
                 local_next_states.append(
-                    NumberState("}" if i == last else ",")
+                    NumberState("}" if i == param_numbers - 1 else ",")
                 )
                 if i == last:
                     local_next_states.append(StaticStringState("}"))
@@ -103,7 +102,7 @@ def build_prompts(prompts_path: str, functions: str) -> list[Prompt]:
         raise ParsingException(
             "Invalid permissions for reading prompts file"
         )
-    except FileExistsError:
+    except FileNotFoundError:
         raise ParsingException(
             "Prompts file doesn't exist"
         )
@@ -138,7 +137,7 @@ def build_linked_state_machines(
     try:
         with open(functions_definition_path) as f:
             funcs_txt = f.read()
-            funcs = json.load(f)
+            funcs = json.loads(funcs_txt)
 
     except json.JSONDecodeError:
         raise ParsingException(
@@ -148,13 +147,13 @@ def build_linked_state_machines(
         raise ParsingException(
             "Invalid permissions for reading prompts file"
         )
-    except FileExistsError:
+    except FileNotFoundError:
         raise ParsingException(
             "Prompts file doesn't exist"
         )
-    except Exception:
+    except Exception as e:
         raise ParsingException(
-            "Unexpected error reading prompts file"
+            f"Unexpected error reading prompts file {e}"
         )
 
     prompts = build_prompts(input_file_path, funcs_txt)
