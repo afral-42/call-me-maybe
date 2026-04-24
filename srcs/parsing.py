@@ -136,8 +136,7 @@ def build_linked_state_machines(
 
     try:
         with open(functions_definition_path) as f:
-            funcs_txt = f.read()
-            funcs = json.loads(funcs_txt)
+            funcs = json.load(f)
 
     except json.JSONDecodeError:
         raise ParsingException(
@@ -156,7 +155,7 @@ def build_linked_state_machines(
             f"Unexpected error reading prompts file {e}"
         )
 
-    prompts = build_prompts(input_file_path, funcs_txt)
+    prompts = build_prompts(input_file_path, funcs)
     for prompt in prompts:
         linked_state_machines[prompt] = build_state_machine(funcs)
 
