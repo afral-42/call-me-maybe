@@ -51,8 +51,6 @@ class BatchInferenceEngine:
                 else:
                     logits = self.llm.get_logits_from_input_ids(ids)
                     best_token = self._get_best_token(authorized, logits)
-                    self.debug_top_logits(logits, self.llm, authorized, top_k=20)
-
 
                 best_token_str = self.llm.decode([best_token])
 
@@ -61,7 +59,7 @@ class BatchInferenceEngine:
                 )
                 for token in cleaned_tokens:
                     token_str = self.llm.decode([token])
-                    print(token_str, end="", flush=True)
+                    #print(token_str, end="", flush=True)
                     self.results[prompt] = (
                         f"{self.results[prompt]}{token_str}"
                     )
@@ -89,23 +87,6 @@ class BatchInferenceEngine:
     def _get_best_token(self, authorized: set[int], logits: list[float]):
         return max(authorized, key=lambda i: logits[i])
 
-    def debug_top_logits(self, logits: list[float], llm, authorized: set[int], top_k: int = 20):
-        print(f"\n{'='*15} DEBUG TOP {top_k} LOGITS {'='*15}")
-
-        # Trie les indices des logits du plus grand au plus petit
-        top_indices = sorted(range(len(logits)), key=lambda i: logits[i], reverse=True)[:top_k]
-        
-        for rank, token_id in enumerate(top_indices):
-            # On décode le token précis
-            token_str = llm.decode([token_id])
-            val = logits[token_id]
-            
-            # On regarde si ton automate l'accepte
-            status = "✅ AUTORISÉ" if token_id in authorized else "❌ BLOQUÉ"
-                
-            # repr() est magique ici : ' ' s'affichera au lieu d'un espace invisible
-            print(f"#{rank+1:<2} | ID: {token_id:<6} | Score: {val:>6.2f} | {status:<11} | Token: {repr(token_str)}")
-        print("="*52 + "\n")
 
     @classmethod
     def build_engine(
