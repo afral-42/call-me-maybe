@@ -6,6 +6,7 @@ from srcs.trie import Trie, get_token_trie
 from srcs.prompts import Prompt
 from typing import Self
 from srcs.parsing import build_linked_state_machines
+import numpy as np
 
 
 class InferenceException(Exception):
@@ -46,9 +47,6 @@ class BatchInferenceEngine:
                     self.trie
                 )
 
-                if len(authorized) == 1:
-                    best_token = list(authorized)[0]
-
                 static_string = self.machines[prompt].get_static_string()
                 if static_string is not None:
                     tokens: list[int] = (
@@ -61,6 +59,10 @@ class BatchInferenceEngine:
                     )
                     self.machines[prompt].consume(static_string)
                     continue
+
+                elif len(authorized) == 1:
+                    best_token = list(authorized)[0]
+
                 else:
                     logits = self.llm.get_logits_from_input_ids(ids)
                     best_token = self._get_best_token(authorized, logits)
@@ -84,6 +86,7 @@ class BatchInferenceEngine:
         for prompt, result_str in self.results.items():
             try:
                 parsed_json = json.loads(result_str)
+                parsed_json["prompt"] = prompt.initial_prompt
                 final_output.append(parsed_json)
             except json.JSONDecodeError:
                 final_output.append(
@@ -97,6 +100,9 @@ class BatchInferenceEngine:
             pass  # Je sais pas quoi faire encore
 
     def _get_best_token(self, authorized: set[int], logits: list[float]):
+        if len(authorized) > 1000:
+            return int(np.argmax(logits))
+
         return max(authorized, key=lambda i: logits[i])
 
 

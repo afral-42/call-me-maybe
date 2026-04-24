@@ -247,6 +247,7 @@ class DynamicStringState(State):
     def __init__(self) -> None:
         self.state = StringMachineState.NORMAL
         self.done = False
+        self.all_tokens: set[int] | None = None
 
         self.transitions = {
             (StringMachineState.ESCAPE, StringCharType.OTHER): (
@@ -292,7 +293,9 @@ class DynamicStringState(State):
     def get_valid_tokens(self, trie: Trie) -> set[int]:
         if self.state == StringMachineState.ESCAPE:
             return trie.constrained_search("\"\\/bfnrtu")
-        return set(range(trie.size))
+        if not self.all_tokens:
+            self.all_tokens = set(range(trie.size))
+        return self.all_tokens
 
     def is_done(self) -> bool:
         return self.done

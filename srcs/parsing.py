@@ -61,7 +61,7 @@ def build_function_states(functions: list[dict]) -> StringRouterState:
             local_next_states.append(StaticStringState(
                 f"\"{name}\":"
             ))
-            if type.type == DataType.NUMBER:
+            if type.type == DataType.NUMBER or type.type == DataType.INTEGER:
                 local_next_states.append(
                     NumberState("}" if i == param_numbers - 1 else ",")
                 )
@@ -88,7 +88,7 @@ def build_function_states(functions: list[dict]) -> StringRouterState:
     return StringRouterState(set(routers), next_states)
 
 
-def build_prompts(prompts_path: str, functions: str) -> list[Prompt]:
+def build_prompts(prompts_path: str, functions: list[dict]) -> list[Prompt]:
     prompts: list[Prompt] = []
 
     try:
@@ -113,8 +113,8 @@ def build_prompts(prompts_path: str, functions: str) -> list[Prompt]:
 
     try:
         for text in texts:
-            PromptSchema.model_validate(text)
-            prompts.append(Prompt(text, functions))
+            prompt = PromptSchema.model_validate(text)
+            prompts.append(Prompt(prompt.prompt, functions))
 
         return prompts
     except ValidationError:

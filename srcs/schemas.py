@@ -6,6 +6,7 @@ class DataType(Enum):
     BOOL = "boolean"
     NUMBER = "number"
     STRING = "string"
+    INTEGER = "integer"
 
 
 class ParameterDetail(BaseModel):
