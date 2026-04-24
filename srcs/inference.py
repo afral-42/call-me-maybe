@@ -48,6 +48,19 @@ class BatchInferenceEngine:
 
                 if len(authorized) == 1:
                     best_token = list(authorized)[0]
+
+                static_string = self.machines[prompt].get_static_string()
+                if static_string is not None:
+                    tokens: list[int] = (
+                        self.llm.encode(static_string)[0].tolist()
+                    )
+                    for token in tokens:
+                        self.built_prompts[prompt].append(token)
+                    self.results[prompt] = (
+                        f"{self.results[prompt]}{static_string}"
+                    )
+                    self.machines[prompt].consume(static_string)
+                    continue
                 else:
                     logits = self.llm.get_logits_from_input_ids(ids)
                     best_token = self._get_best_token(authorized, logits)
@@ -59,7 +72,6 @@ class BatchInferenceEngine:
                 )
                 for token in cleaned_tokens:
                     token_str = self.llm.decode([token])
-                    #print(token_str, end="", flush=True)
                     self.results[prompt] = (
                         f"{self.results[prompt]}{token_str}"
                     )

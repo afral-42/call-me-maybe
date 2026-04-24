@@ -31,6 +31,9 @@ class State(ABC):
     ) -> list[int]:
         return [token_id]
 
+    def get_static_string(self) -> str | None:
+        return None
+
 
 class StaticStringState(State):
     def __init__(self, string: str) -> None:
@@ -52,6 +55,9 @@ class StaticStringState(State):
         if self.string == "":
             return True
         return False
+
+    def get_static_string(self) -> str | None:
+        return self.string
 
 
 class NumberMachineState(Enum):
@@ -354,3 +360,8 @@ class StringRouterState(State):
 
     def get_next_states(self) -> list[State]:
         return self.next_states[self.winner]
+
+    def get_static_string(self) -> str | None:
+        if len(self.options) == 1:
+            return list(self.options)[0].get_static_string()
+        return None

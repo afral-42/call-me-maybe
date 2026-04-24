@@ -151,6 +151,6 @@ def get_token_trie(llm: Small_LLM_Model) -> Trie:
 
     vocab: dict[str, int] = tokenizer_file["model"]["vocab"]
     for token in vocab.values():
-        trie.insert(llm.decode(token), token)
+        trie.insert(llm.decode([token]), token)
 
     return trie

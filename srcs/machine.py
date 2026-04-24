@@ -39,3 +39,6 @@ class StateMachine:
         self, token_str: str, token_id: int, llm: Small_LLM_Model
     ) -> list[int]:
         return self.states[0].intercept_token(token_str, token_id, llm)
+
+    def get_static_string(self) -> str | None:
+        return self.states[0].get_static_string()
