@@ -1,0 +1,32 @@
+[
+  {
+    "name": "fn_concat_strings",
+    "description": "Concatenate two strings together with a space in between.",
+    "parameters": {
+      "string1": {
+        "type": "string"
+      },
+      "string2": {
+        "type": "string"
+      }
+    },
+    "returns": {
+      "type": "string"
+    }
+  },
+  {
+    "name": "fn_format_quote",
+    "description": "Format a quote with the author's name.",
+    "parameters": {
+      "author": {
+        "type": "string"
+      },
+      "quote_text": {
+        "type": "string"
+      }
+    },
+    "returns": {
+      "type": "string"
+    }
+  }
+]

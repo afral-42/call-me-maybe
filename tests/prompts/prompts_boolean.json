@@ -1,0 +1,17 @@
+[
+  {
+    "prompt": "Enable the 'dark_mode' feature."
+  },
+  {
+    "prompt": "Please disable the 'auto_save' feature immediately."
+  },
+  {
+    "prompt": "What is the logical AND of true and false?"
+  },
+  {
+    "prompt": "Perform an AND operation with true and true."
+  },
+  {
+    "prompt": "Set the 'debug_logging' feature to false."
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "fn_toggle_feature",
+    "description": "Enable or disable a specific system feature.",
+    "parameters": {
+      "feature_name": {
+        "type": "string"
+      },
+      "is_enabled": {
+        "type": "boolean"
+      }
+    },
+    "returns": {
+      "type": "boolean"
+    }
+  },
+  {
+    "name": "fn_logical_and",
+    "description": "Perform a logical AND operation on two boolean values.",
+    "parameters": {
+      "a": {
+        "type": "boolean"
+      },
+      "b": {
+        "type": "boolean"
+      }
+    },
+    "returns": {
+      "type": "boolean"
+    }
+  }
+]

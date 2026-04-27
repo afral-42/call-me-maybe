@@ -1,0 +1,17 @@
+[
+  {
+    "prompt": "Calculate the area of a circle with a radius of 3.1415"
+  },
+  {
+    "prompt": "What is the area of a circle if the radius is 0.5?"
+  },
+  {
+    "prompt": "Divide 10.5 by 2.25."
+  },
+  {
+    "prompt": "Can you divide -50.75 by 4.1?"
+  },
+  {
+    "prompt": "Divide 1.698e17 by 2.5."
+  }
+]

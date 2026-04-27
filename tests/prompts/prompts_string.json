@@ -1,0 +1,17 @@
+[
+  {
+    "prompt": "Concatenate the word 'Hello' and 'World'."
+  },
+  {
+    "prompt": "Can you join 'Constrained' and 'Decoding'?"
+  },
+  {
+    "prompt": "Format a quote for Albert Einstein saying: Imagination is more important than knowledge."
+  },
+  {
+    "prompt": "Format this quote by the System: Error 404 \"File Not Found\" \\n Please reboot."
+  },
+  {
+    "prompt": "Please make a quote where Yoda says 'Do or do not, there is no try'."
+  }
+]

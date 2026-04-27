@@ -1,0 +1,29 @@
+[
+  {
+    "name": "fn_calculate_circle_area",
+    "description": "Calculate the area of a circle given its radius.",
+    "parameters": {
+      "radius": {
+        "type": "number"
+      }
+    },
+    "returns": {
+      "type": "number"
+    }
+  },
+  {
+    "name": "fn_divide_numbers",
+    "description": "Divide the first number by the second number.",
+    "parameters": {
+      "dividend": {
+        "type": "number"
+      },
+      "divisor": {
+        "type": "number"
+      }
+    },
+    "returns": {
+      "type": "number"
+    }
+  }
+]

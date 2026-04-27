@@ -1,0 +1,29 @@
+[
+  {
+    "name": "fn_multiply_integers",
+    "description": "Multiply two integers together.",
+    "parameters": {
+      "a": {
+        "type": "integer"
+      },
+      "b": {
+        "type": "integer"
+      }
+    },
+    "returns": {
+      "type": "integer"
+    }
+  },
+  {
+    "name": "fn_get_absolute_value",
+    "description": "Return the absolute value of an integer.",
+    "parameters": {
+      "value": {
+        "type": "integer"
+      }
+    },
+    "returns": {
+      "type": "integer"
+    }
+  }
+]
