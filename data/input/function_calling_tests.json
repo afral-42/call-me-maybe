@@ -1,35 +1,44 @@
 [
   {
-    "prompt": "What is the sum of 2 and 3?"
+    "prompt": "Can you add 42 and 58 for me?"
   },
   {
-    "prompt": "What is the sum of 265 and 345?"
+    "prompt": "What is the sum of -10.5 and 20.5?"
   },
   {
-    "prompt": "Greet shrek"
+    "prompt": "Please greet Alice."
   },
   {
-    "prompt": "Greet john"
+    "prompt": "Say hello to Captain Picard"
   },
   {
-    "prompt": "Reverse the string 'hello'"
+    "prompt": "Reverse the string 'racecar'"
   },
   {
-    "prompt": "Reverse the string 'world'"
+    "prompt": "Can you reverse the sentence 'The weather is nice'?"
   },
   {
-    "prompt": "What is the square root of 16?"
+    "prompt": "What is the square root of 64?"
   },
   {
-    "prompt": "Calculate the square root of 144"
+    "prompt": "Calculate the square root of 10000"
   },
   {
-    "prompt": "Replace all numbers in \"Hello 34 I'm 233 years old\" with NUMBERS"
+    "prompt": "Find the square root of 0.25"
   },
   {
-    "prompt": "Replace all vowels in 'Programming is fun' with asterisks"
+    "prompt": "Replace all digits in 'My phone number is 123456' with the character '#'"
   },
   {
-    "prompt": "Substitute the word 'cat' with 'dog' in 'The cat sat on the mat with another cat'"
+    "prompt": "Substitute all occurrences of the word 'blue' with 'red' in the sentence 'The sky is blue and the ocean is blue'"
+  },
+  {
+    "prompt": "Replace all whitespace characters in 'word1 word2 word3' with underscores"
+  },
+  {
+    "prompt": "What do you get if you add 0 and 0?"
+  },
+  {
+    "prompt": "Reverse the word '42'"
   }
 ]
