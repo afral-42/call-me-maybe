@@ -5,9 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "htbuilder>=0.9.0",
     "llm-sdk>=1.0.1",
+    "mypy>=1.20.2",
     "numpy>=2.4.4",
+    "protobuf>=7.34.1",
     "pydantic>=2.13.1",
+    "sentencepiece>=0.2.1",
+    "streamlit>=1.56.0",
     "torch",
     "torchaudio",
     "torchvision",
