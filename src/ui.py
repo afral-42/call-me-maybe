@@ -18,10 +18,25 @@ from src.trie import Trie, get_token_trie
 
 class InferenceException(Exception):
     def __init__(self, detail: str) -> None:
+        """
+
+        Initialize the inference exception.
+
+        Args:
+
+            detail (str): The detail message for the error.
+
+        """
         super().__init__(f"Inference error: {detail}")
 
 
 class StreamInferenceEngine:
+    """
+
+    Streaming inference engine for constrained generation.
+
+    """
+
     def __init__(
         self,
         llm: Small_LLM_Model,
@@ -29,6 +44,22 @@ class StreamInferenceEngine:
         output_file_path: str,
         linked_state_machines: dict[Prompt, StateMachine]
     ) -> None:
+        """
+
+        Initialize the stream inference engine.
+
+        Args:
+
+            llm (Small_LLM_Model): The language model.
+
+            trie (Trie): The token trie.
+
+            output_file_path (str): Path to output file.
+
+            linked_state_machines (dict[Prompt, StateMachine]):
+                Linked state machines.
+
+        """
         self.machines = linked_state_machines
         self.trie = trie
         self.llm = llm
@@ -40,6 +71,11 @@ class StreamInferenceEngine:
         self._batch_encode()
 
     def _batch_encode(self) -> None:
+        """
+
+        Encode all prompts into token IDs.
+
+        """
         for prompt in self.machines.keys():
             self.built_prompts[prompt] = (
                 self.llm.encode(str(prompt))[0].tolist()
@@ -48,6 +84,19 @@ class StreamInferenceEngine:
     def stream_run(
         self, prompt: Prompt
     ) -> Generator[dict[str, Any], None, None]:
+        """
+
+        Run streaming inference for a prompt.
+
+        Args:
+
+            prompt (Prompt): The prompt to process.
+
+        Yields:
+
+            dict[str, Any]: Step information.
+
+        """
         ids = self.built_prompts[prompt]
         machine = self.machines[prompt]
 
@@ -105,6 +154,21 @@ class StreamInferenceEngine:
     def _get_best_token(
         self, authorized: set[int], logits: list[float]
     ) -> int:
+        """
+
+        Get the best token from authorized tokens.
+
+        Args:
+
+            authorized (set[int]): Authorized token IDs.
+
+            logits (list[float]): Logits.
+
+        Returns:
+
+            int: Best token ID.
+
+        """
         if len(authorized) > 1000:
             auth_list = list(authorized)
             auth_logits = [logits[i] for i in auth_list]
@@ -119,6 +183,23 @@ class StreamInferenceEngine:
         functions_definition_path: str,
         output_path: str
     ) -> Self:
+        """
+
+        Build a stream inference engine.
+
+        Args:
+
+            input_path (str): Path to input prompts.
+
+            functions_definition_path (str): Path to functions.
+
+            output_path (str): Path to output.
+
+        Returns:
+
+            StreamInferenceEngine: The engine.
+
+        """
         llm = Small_LLM_Model()
         trie = get_token_trie(llm)
         machines = build_linked_state_machines(
@@ -171,6 +252,15 @@ with st.sidebar:
 
 @st.cache_resource
 def load_llm_trie() -> tuple[Small_LLM_Model, Trie]:
+    """
+
+    Load and cache the LLM and trie.
+
+    Returns:
+
+        tuple[Small_LLM_Model, Trie]: The LLM and trie.
+
+    """
     model = Small_LLM_Model()
     model_trie = get_token_trie(model)
     return model, model_trie

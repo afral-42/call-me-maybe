@@ -14,10 +14,25 @@ import os
 
 class InferenceException(Exception):
     def __init__(self, detail: str) -> None:
+        """
+
+        Initialize the inference exception.
+
+        Args:
+
+            detail (str): The detail message for the error.
+
+        """
         super().__init__(f"Inference error: {detail}")
 
 
 class BatchInferenceEngine:
+    """
+
+    Batch inference engine for constrained generation using state machines.
+
+    """
+
     def __init__(
         self,
         llm: Small_LLM_Model,
@@ -25,6 +40,22 @@ class BatchInferenceEngine:
         output_file_path: str,
         linked_state_machines: dict[Prompt, StateMachine]
     ) -> None:
+        """
+
+        Initialize the batch inference engine.
+
+        Args:
+
+            llm (Small_LLM_Model): The language model instance.
+
+            trie (Trie): The trie for token constraints.
+
+            output_file_path (str): Path to the output file.
+
+            linked_state_machines (dict[Prompt, StateMachine]):
+                Mapping of prompts to state machines.
+
+        """
         self.machines = linked_state_machines
         self.trie = trie
         self.llm = llm
@@ -38,12 +69,22 @@ class BatchInferenceEngine:
         self._batch_encode()
 
     def _batch_encode(self) -> None:
+        """
+
+        Encode all prompts into token IDs for batch processing.
+
+        """
         for prompt in self.machines.keys():
             self.built_prompts[prompt] = (
                 (self.llm.encode(str(prompt)))[0].tolist()
             )
 
     def run(self) -> None:
+        """
+
+        Run the batch inference for all prompts.
+
+        """
         for prompt, ids in self.built_prompts.items():
             try:
                 while not self.machines[prompt].is_done():
@@ -94,6 +135,11 @@ class BatchInferenceEngine:
                 )
 
     def save_results(self) -> None:
+        """
+
+        Save the inference results to the output file.
+
+        """
         final_output = []
 
         for prompt, result_str in self.results.items():
@@ -121,6 +167,21 @@ class BatchInferenceEngine:
     def _get_best_token(
         self, authorized: set[int], logits: list[float]
     ) -> int:
+        """
+
+        Get the best token from authorized tokens based on logits.
+
+        Args:
+
+            authorized (set[int]): Set of authorized token IDs.
+
+            logits (list[float]): List of logits for all tokens.
+
+        Returns:
+
+            int: The best token ID.
+
+        """
         if len(authorized) > 1000:
             auth_list = list(authorized)
             auth_logits = [logits[i] for i in auth_list]
@@ -136,6 +197,25 @@ class BatchInferenceEngine:
         functions_definition_path: str,
         output_path: str
     ) -> Self:
+        """
+
+        Build a batch inference engine from file paths.
+
+        Args:
+
+            input_path (str): Path to the input prompts JSON file.
+
+            functions_definition_path (str):
+                Path to the functions definition
+                JSON file.
+
+            output_path (str): Path to the output file.
+
+        Returns:
+
+            BatchInferenceEngine: The built engine.
+
+        """
         llm = Small_LLM_Model()
         trie = get_token_trie(llm)
         machines = build_linked_state_machines(

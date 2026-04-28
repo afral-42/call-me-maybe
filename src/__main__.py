@@ -6,6 +6,15 @@ import argparse
 
 
 def parse_args() -> argparse.Namespace:
+    """
+
+    Parse command line arguments for the constrained inference engine.
+
+    Returns:
+
+        argparse.Namespace: The parsed command line arguments.
+
+    """
     parser = argparse.ArgumentParser(
         description="Constrained Inference Engine for Function Calling"
     )
@@ -35,6 +44,15 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """
+
+    Main entry point for the constrained inference engine application.
+
+    Parses arguments, builds the inference engine, runs batch generation,
+
+    and saves results.
+
+    """
     args = parse_args()
 
     try:

@@ -17,10 +17,38 @@ from typing import Any, cast
 
 class ParsingException(Exception):
     def __init__(self, detail: str) -> None:
+        """
+
+        Initialize the parsing exception.
+
+        Args:
+
+            detail (str): The detail message for the error.
+
+        """
         super().__init__(f"Parsing error: {detail}")
 
 
 def load_json_file(file_path: str, file_type: str) -> list[dict[str, Any]]:
+    """
+
+    Load and parse a JSON file.
+
+    Args:
+
+        file_path (str): Path to the JSON file.
+
+        file_type (str): Description of the file type for error messages.
+
+    Returns:
+
+        list[dict[str, Any]]: The parsed JSON data.
+
+    Raises:
+
+        ParsingException: If the file cannot be read or parsed.
+
+    """
     try:
         with open(file_path, "r") as f:
             return cast(list[dict[str, Any]], json.load(f))
@@ -43,6 +71,23 @@ def load_json_file(file_path: str, file_type: str) -> list[dict[str, Any]]:
 
 
 def parse_functions(functions: list[dict[str, Any]]) -> list[FunctionSchema]:
+    """
+
+    Parse a list of function dictionaries into FunctionSchema objects.
+
+    Args:
+
+        functions (list[dict[str, Any]]): List of function definitions.
+
+    Returns:
+
+        list[FunctionSchema]: List of parsed function schemas.
+
+    Raises:
+
+        ParsingException: If validation fails.
+
+    """
     try:
         function_schemas: list[FunctionSchema] = [
             FunctionSchema.model_validate(function) for function in functions
@@ -54,6 +99,15 @@ def parse_functions(functions: list[dict[str, Any]]) -> list[FunctionSchema]:
 
 
 def get_boolean_automate() -> StringRouterState:
+    """
+
+    Get a state machine for boolean values.
+
+    Returns:
+
+        StringRouterState: The boolean state machine.
+
+    """
     true_state = StaticStringState("true")
     false_state = StaticStringState("false")
 
@@ -65,6 +119,19 @@ def get_boolean_automate() -> StringRouterState:
 def build_function_states(
     functions: list[dict[str, Any]]
 ) -> StringRouterState:
+    """
+
+    Build state machines for function definitions.
+
+    Args:
+
+        functions (list[dict[str, Any]]): List of function definitions.
+
+    Returns:
+
+        StringRouterState: The root state for function selection.
+
+    """
     function_schemas = parse_functions(functions)
     routers: list[StaticStringState] = []
     next_states: dict[StaticStringState, list[State]] = {}
@@ -124,6 +191,25 @@ def build_function_states(
 def build_prompts(
     prompts_path: str, functions: list[dict[str, Any]]
 ) -> list[Prompt]:
+    """
+
+    Build prompt objects from a JSON file.
+
+    Args:
+
+        prompts_path (str): Path to the prompts JSON file.
+
+        functions (list[dict[str, Any]]): List of function definitions.
+
+    Returns:
+
+        list[Prompt]: List of prompt objects.
+
+    Raises:
+
+        ParsingException: If parsing fails.
+
+    """
     prompts: list[Prompt] = []
 
     texts = load_json_file(prompts_path, "prompts")
@@ -139,6 +225,19 @@ def build_prompts(
 
 
 def build_state_machine(functions: list[dict[str, Any]]) -> StateMachine:
+    """
+
+    Build a state machine for function calling.
+
+    Args:
+
+        functions (list[dict[str, Any]]): List of function definitions.
+
+    Returns:
+
+        StateMachine: The state machine for constrained generation.
+
+    """
     begin = StaticStringState("{\"name\":\"")
     router = build_function_states(functions)
 
@@ -149,6 +248,21 @@ def build_linked_state_machines(
     functions_definition_path: str,
     input_file_path: str,
 ) -> dict[Prompt, StateMachine]:
+    """
+
+    Build linked state machines for prompts and functions.
+
+    Args:
+
+        functions_definition_path (str): Path to functions definition JSON.
+
+        input_file_path (str): Path to prompts JSON.
+
+    Returns:
+
+        dict[Prompt, StateMachine]: Mapping of prompts to state machines.
+
+    """
     linked_state_machines: dict[Prompt, StateMachine] = {}
 
     funcs = load_json_file(functions_definition_path, "functions definition")

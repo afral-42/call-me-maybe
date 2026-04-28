@@ -6,39 +6,148 @@ from llm_sdk import Small_LLM_Model
 
 class StateException(Exception):
     def __init__(self, detail: str) -> None:
+        """
+
+        Initialize the state exception.
+
+        Args:
+
+            detail (str): The detail message for the error.
+
+        """
         super().__init__(f"Generation error: {detail}")
 
 
 class State(ABC):
+    """
+
+    Abstract base class for states in the state machine.
+
+    """
+
     @abstractmethod
     def consume(self, text: str) -> None:
+        """
+
+        Consume text and update the state.
+
+        Args:
+
+            text (str): The text to consume.
+
+        """
         pass
 
     @abstractmethod
     def get_valid_tokens(self, trie: Trie) -> set[int]:
+        """
+
+        Get valid token IDs for the current state.
+
+        Args:
+
+            trie (Trie): The token trie.
+
+        Returns:
+
+            set[int]: Set of valid token IDs.
+
+        """
         pass
 
     @abstractmethod
     def is_done(self) -> bool:
+        """
+
+        Check if the state is done.
+
+        Returns:
+
+            bool: True if done.
+
+        """
         pass
 
     def get_next_states(self) -> list["State"]:
+        """
+
+        Get the next states after this state is done.
+
+        Returns:
+
+            list[State]: List of next states.
+
+        """
         return []
 
     def intercept_token(
         self, token_str: str, token_id: int, llm: Small_LLM_Model
     ) -> list[int]:
+        """
+
+        Intercept a token, potentially splitting it.
+
+        Args:
+
+            token_str (str): The token string.
+
+            token_id (int): The token ID.
+
+            llm (Small_LLM_Model): The language model.
+
+        Returns:
+
+            list[int]: List of token IDs.
+
+        """
         return [token_id]
 
     def get_static_string(self) -> str | None:
+        """
+
+        Get a static string if available.
+
+        Returns:
+
+            str | None: The static string or None.
+
+        """
         return None
 
 
 class StaticStringState(State):
+    """
+
+    State that matches a static string.
+
+    """
+
     def __init__(self, string: str) -> None:
+        """
+
+        Initialize the static string state.
+
+        Args:
+
+            string (str): The string to match.
+
+        """
         self.string = string
 
     def consume(self, text: str) -> None:
+        """
+
+        Consume text by removing prefix.
+
+        Args:
+
+            text (str): The text to consume.
+
+        Raises:
+
+            StateException: If text doesn't match.
+
+        """
         if self.string.startswith(text):
             self.string = self.string[len(text):]
         else:
@@ -48,14 +157,45 @@ class StaticStringState(State):
             )
 
     def get_valid_tokens(self, trie: Trie) -> set[int]:
+        """
+
+        Get valid tokens for the remaining string.
+
+        Args:
+
+            trie (Trie): The token trie.
+
+        Returns:
+
+            set[int]: Set of valid token IDs.
+
+        """
         return trie.search_prefixes(self.string)
 
     def is_done(self) -> bool:
+        """
+
+        Check if the string is fully consumed.
+
+        Returns:
+
+            bool: True if done.
+
+        """
         if self.string == "":
             return True
         return False
 
     def get_static_string(self) -> str | None:
+        """
+
+        Get the remaining static string.
+
+        Returns:
+
+            str | None: The remaining string.
+
+        """
         return self.string
 
 
@@ -82,7 +222,24 @@ class NumberCharType(Enum):
 
 
 class NumberState(State):
+    """
+
+    State for parsing JSON number values.
+
+    """
+
     def __init__(self, end_char: str, max_length: int = 50) -> None:
+        """
+
+        Initialize the number state.
+
+        Args:
+
+            end_char (str): The character that ends the number.
+
+            max_length (int): Maximum length allowed.
+
+        """
         self.done = False
         self.state = NumberMachineState.SIGN
         self.len_count = 0
@@ -177,6 +334,23 @@ class NumberState(State):
         }
 
     def _get_char_type(self, char: str) -> NumberCharType | str:
+        """
+
+        Get the type of a character for number parsing.
+
+        Args:
+
+            char (str): The character.
+
+        Returns:
+
+            NumberCharType | str: The type or the end char.
+
+        Raises:
+
+            StateException: If invalid character.
+
+        """
         if char == self.end:
             return self.end
 
@@ -255,7 +429,24 @@ class IntegerCharType(Enum):
 
 
 class IntegerState(State):
+    """
+
+    State for parsing JSON integer values.
+
+    """
+
     def __init__(self, end_char: str, max_length: int = 50) -> None:
+        """
+
+        Initialize the integer state.
+
+        Args:
+
+            end_char (str): The character that ends the integer.
+
+            max_length (int): Maximum length allowed.
+
+        """
         self.done = False
         self.state = IntegerMachineState.SIGN
         self.end = end_char
@@ -294,6 +485,23 @@ class IntegerState(State):
         }
 
     def _get_char_type(self, char: str) -> IntegerCharType | str:
+        """
+
+        Get the type of a character for integer parsing.
+
+        Args:
+
+            char (str): The character.
+
+        Returns:
+
+            IntegerCharType | str: The type or the end char.
+
+        Raises:
+
+            StateException: If invalid character.
+
+        """
         if char == self.end:
             return self.end
 
@@ -370,7 +578,22 @@ class StringCharType(Enum):
 
 
 class DynamicStringState(State):
+    """
+
+    State for parsing JSON string values with escaping.
+
+    """
+
     def __init__(self, max_length: int = 250) -> None:
+        """
+
+        Initialize the dynamic string state.
+
+        Args:
+
+            max_length (int): Maximum length allowed.
+
+        """
         self.state = StringMachineState.NORMAL
         self.done = False
         self.all_tokens: set[int] | None = None
@@ -393,6 +616,19 @@ class DynamicStringState(State):
         }
 
     def _get_char_type(self, char: str) -> StringCharType:
+        """
+
+        Get the type of a character for string parsing.
+
+        Args:
+
+            char (str): The character.
+
+        Returns:
+
+            StringCharType: The type.
+
+        """
         for key in StringCharType:
             if char in key.value:
                 return key
@@ -422,6 +658,19 @@ class DynamicStringState(State):
                         )
 
     def get_valid_tokens(self, trie: Trie) -> set[int]:
+        """
+
+        Get valid tokens for string parsing.
+
+        Args:
+
+            trie (Trie): The token trie.
+
+        Returns:
+
+            set[int]: Set of valid token IDs.
+
+        """
         if self.state == StringMachineState.ESCAPE:
             return trie.constrained_search("\"\\/bfnrtu")
         if self.len_count >= self.max_length:
@@ -431,6 +680,15 @@ class DynamicStringState(State):
         return self.all_tokens
 
     def is_done(self) -> bool:
+        """
+
+        Check if string parsing is done.
+
+        Returns:
+
+            bool: True if done.
+
+        """
         return self.done
 
     def intercept_token(
@@ -439,6 +697,23 @@ class DynamicStringState(State):
         token_id: int,
         llm: Small_LLM_Model
     ) -> list[int]:
+        """
+
+        Intercept token for string parsing.
+
+        Args:
+
+            token_str (str): The token string.
+
+            token_id (int): The token ID.
+
+            llm (Small_LLM_Model): The language model.
+
+        Returns:
+
+            list[int]: List of token IDs.
+
+        """
         escaped = (self.state == StringMachineState.ESCAPE)
 
         for i, c in enumerate(token_str):
@@ -458,16 +733,47 @@ class DynamicStringState(State):
 
 
 class StringRouterState(State):
+    """
+
+    State that routes to different options based on string matching.
+
+    """
+
     def __init__(
         self,
         options: set[StaticStringState],
         next_states: dict[StaticStringState, list[State]]
     ) -> None:
+        """
+
+        Initialize the string router state.
+
+        Args:
+
+            options (set[StaticStringState]): Set of option states.
+
+            next_states (dict[StaticStringState, list[State]]):
+                Next states for each option.
+
+        """
         self.options = options
         self.done = False
         self.next_states = next_states
 
     def consume(self, text: str) -> None:
+        """
+
+        Consume text and narrow down options.
+
+        Args:
+
+            text (str): The text to consume.
+
+        Raises:
+
+            StateException: If no options remain.
+
+        """
         if not len(self.options):
             raise StateException(
                 f"Router lost: No valid function options "
@@ -488,17 +794,57 @@ class StringRouterState(State):
             self.options.remove(state)
 
     def get_valid_tokens(self, trie: Trie) -> set[int]:
+        """
+
+        Get valid tokens for the remaining options.
+
+        Args:
+
+            trie (Trie): The token trie.
+
+        Returns:
+
+            set[int]: Set of valid token IDs.
+
+        """
         return trie.search_batch_prefixes(
             tuple([state.string for state in self.options])
         )
 
     def is_done(self) -> bool:
+        """
+
+        Check if routing is done.
+
+        Returns:
+
+            bool: True if done.
+
+        """
         return self.done
 
     def get_next_states(self) -> list[State]:
+        """
+
+        Get the next states after routing.
+
+        Returns:
+
+            list[State]: List of next states.
+
+        """
         return self.next_states[self.winner]
 
     def get_static_string(self) -> str | None:
+        """
+
+        Get static string if only one option.
+
+        Returns:
+
+            str | None: The static string or None.
+
+        """
         if len(self.options) == 1:
             return list(self.options)[0].get_static_string()
         return None

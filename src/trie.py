@@ -16,6 +16,17 @@ class Trie:
         self.size = 0
 
     def insert(self, string: str, token_id: int) -> None:
+        """
+
+        Insert a string into the trie.
+
+        Args:
+
+            string (str): The string to insert.
+
+            token_id (int): The token ID.
+
+        """
         if not string:
             return
         cur = self.root
@@ -32,6 +43,19 @@ class Trie:
 
     @functools.lru_cache()
     def search_prefixes(self, string: str) -> set[int]:
+        """
+
+        Search for token IDs with prefixes matching the string.
+
+        Args:
+
+            string (str): The prefix string.
+
+        Returns:
+
+            set[int]: Set of token IDs.
+
+        """
         cur = self.root
 
         result = []
@@ -46,6 +70,19 @@ class Trie:
 
     @functools.lru_cache()
     def search_batch_prefixes(self, strings: tuple[str]) -> set[int]:
+        """
+
+        Search for token IDs with prefixes matching any of the strings.
+
+        Args:
+
+            strings (tuple[str]): Tuple of prefix strings.
+
+        Returns:
+
+            set[int]: Set of token IDs.
+
+        """
         result = []
         for string in strings:
             cur = self.root
@@ -60,6 +97,19 @@ class Trie:
 
     @functools.lru_cache()
     def constrained_search(self, constraint: str) -> set[int]:
+        """
+
+        Search with character constraints.
+
+        Args:
+
+            constraint (str): Allowed characters.
+
+        Returns:
+
+            set[int]: Set of token IDs.
+
+        """
         queue: deque[tuple[str, TrieNode]] = deque()
 
         for key, value in self.root.childrens.items():
@@ -83,6 +133,23 @@ class Trie:
     def constrained_search_with_uniques(
         self, constraint: str, uniques: str, end_char: str | None = None,
     ) -> set[int]:
+        """
+
+        Search with constraints and unique characters.
+
+        Args:
+
+            constraint (str): Allowed characters.
+
+            uniques (str): Unique characters.
+
+            end_char (str | None): End character.
+
+        Returns:
+
+            set[int]: Set of token IDs.
+
+        """
         queue: deque[tuple[str, TrieNode, frozenset[str]]] = deque()
 
         for key, value in self.root.childrens.items():
@@ -116,6 +183,23 @@ class Trie:
     def ended_search(
         self, constraint: str, escape: str, escape_char: str
     ) -> set[int]:
+        """
+
+        Search with escape handling.
+
+        Args:
+
+            constraint (str): Allowed characters.
+
+            escape (str): Escape characters.
+
+            escape_char (str): Escape character.
+
+        Returns:
+
+            set[int]: Set of token IDs.
+
+        """
         queue: deque[tuple[str, TrieNode, bool]] = deque()
         result: list[int] = []
 
@@ -143,6 +227,19 @@ class Trie:
 
 
 def get_token_trie(llm: Small_LLM_Model) -> Trie:
+    """
+
+    Build a trie from the LLM's tokenizer.
+
+    Args:
+
+        llm (Small_LLM_Model): The language model.
+
+    Returns:
+
+        Trie: The token trie.
+
+    """
     trie = Trie()
 
     path = llm.get_path_to_tokenizer_file()
