@@ -66,7 +66,6 @@ def build_function_states(
     functions: list[dict[str, Any]]
 ) -> StringRouterState:
     function_schemas = parse_functions(functions)
-
     routers: list[StaticStringState] = []
     next_states: dict[StaticStringState, list[State]] = {}
 
@@ -78,7 +77,9 @@ def build_function_states(
 
         param_numbers = len(schema.parameters)
         if not param_numbers:
-            local_next_states.append(StaticStringState("}"))
+            local_next_states.append(StaticStringState("}}"))
+            routers.append(router)
+            next_states[router] = local_next_states
             continue
 
         last = param_numbers - 1
